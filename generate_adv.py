@@ -10,13 +10,14 @@ from utils import *
 if not os.path.isdir('adv'):
     os.mkdir('adv')
 
-MAX_TESTING_NUM = 3
+#MAX_TESTING_NUM = 3
 
 
-def main(task_id, attack_id, beam):
+def main(task_id, attack_id, beam, start, end):
     model_name = MODEL_NAME_LIST[task_id]
+    print(f"data slicing start {start} end {end}")
     device = torch.device('cuda')
-    model, tokenizer, space_token, dataset, src_lang, tgt_lang = load_model_dataset(model_name)
+    model, tokenizer, space_token, dataset, src_lang, tgt_lang = load_model_dataset(model_name, start,  end)
     print('load model %s successful' % model_name)
     beam = model.config.num_beams if beam is None else beam
     config = {
@@ -37,8 +38,8 @@ def main(task_id, attack_id, beam):
         used_tokens = set()
         if i == 0:
             continue
-        if i >= MAX_TESTING_NUM:
-            break
+        # if i >= MAX_TESTING_NUM:
+        #     break
 
 
         if attack_id in [7,8,9]:
@@ -73,8 +74,10 @@ if __name__ == '__main__':
     parser.add_argument('--data', default=7, type=int, help='experiment subjects')
     parser.add_argument('--attack', default=7, type=int, help='attack type')
     parser.add_argument('--beam', default=None, type=int, help='beam size')
+    parser.add_argument('--start', default=0, type=int, help='start index')
+    parser.add_argument('--end', default=None, type=int, help='end index')
     args = parser.parse_args()
-    main(args.data, args.attack, args.beam)
+    main(args.data, args.attack, args.beam, args.start, args.end)
     exit(0)
 
 

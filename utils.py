@@ -24,7 +24,9 @@ MODEL_NAME_LIST = [
     'LaMini-GPT',
     'flan-t5-small',
     'Codegen',
-    'Llama-3.1-8B'
+    'Llama-8B',
+    'Qwen-1.5B',
+    'Qwen-7B'
 
 ]
 MODEL_WEIGHT = 'model_weight'
@@ -57,12 +59,26 @@ def load_model(model_name):
         model = AutoModelForSeq2SeqLM.from_pretrained("t5-small")
         space_token = '▁'
         src_lang, tgt_lang = 'en', 'de'
+    elif model_name == 'Llama-8B':
+        tokenizer = AutoTokenizer.from_pretrained(
+            "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+            padding_side='left'
+        )
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
 
-    elif model_name == 'Llama-3.1-8B':
+        model = AutoModelForCausalLM.from_pretrained(
+            "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+            torch_dtype=torch.float16,
+            device_map="auto"
+        )
+        model.config.pad_token_id = tokenizer.pad_token_id
+        space_token = 'Ġ'
+        src_lang, tgt_lang = 'en', 'en'
+
+    elif model_name == 'Qwen-1.5B':
         tokenizer = AutoTokenizer.from_pretrained(
             "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
-            #"deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
-            #"meta-llama/Llama-3.1-8B",
             padding_side='left'
         )
 
@@ -71,8 +87,6 @@ def load_model(model_name):
 
         model = AutoModelForCausalLM.from_pretrained(
             "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
-            #"deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
-            #"meta-llama/Llama-3.1-8B",
             torch_dtype=torch.float16,
             device_map="auto"
         )
@@ -80,7 +94,23 @@ def load_model(model_name):
         space_token = 'Ġ'
         src_lang, tgt_lang = 'en', 'en'
 
+    elif model_name == 'Qwen-7B':
+        tokenizer = AutoTokenizer.from_pretrained(
+            "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+            padding_side='left'
+        )
 
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
+
+        model = AutoModelForCausalLM.from_pretrained(
+            "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+            torch_dtype=torch.float16,
+            device_map="auto"
+        )
+        model.config.pad_token_id = tokenizer.pad_token_id
+        space_token = 'Ġ'
+        src_lang, tgt_lang = 'en', 'en'
 
     elif model_name == 'Helsinki-en-de':
         tokenizer = AutoTokenizer.from_pretrained("Helsinki-NLP/opus-mt-en-de")
@@ -155,26 +185,19 @@ def load_model(model_name):
     return model, tokenizer, space_token, src_lang, tgt_lang
 
 
-def my_load_dataset(model_name):
+def my_load_dataset(model_name, start = 0, end = None):
     if model_name == 'Helsinki-en-zh':
         with open('./data/Helsinki-en-zh.txt', 'r') as f:
             data = f.readlines()
             return data
-    elif model_name == 'Llama-3.1-8B':
+    elif model_name == 'Qwen-1.5B' or model_name == 'Llama-8B' or model_name == 'Qwen-7B':
         dataset = load_dataset("gsm8k", "main")
         data = dataset["test"]['question'][:2000]
-        return data
+        return data[start:end]
         # You can use the standard translation validation file or switch to hellaswag/mbpp
         # with open('./data/translation2019zh/valid.en', 'r', encoding='utf-8') as f:
         #     data = f.readlines()
         #     return data
-    elif model_name == 'facebook-wmt19' or model_name == 'llama-3.1b':
-        # with open('./data/rapid2019.txt', 'r') as f:
-        #     data = f.readlines()
-        #     return data
-        with open('./data/translation2019zh/valid.en', 'r', encoding='utf-8') as f:
-            data = f.readlines()
-            return data
     elif model_name == 'T5-small':
         with open('./data/translation2019zh/valid.en', 'r') as f:
             data = f.readlines()
@@ -240,9 +263,9 @@ def my_load_dataset(model_name):
         raise NotImplementedError
 
 
-def load_model_dataset(model_name):
+def load_model_dataset(model_name, start = 0, end = None):
     model, tokenizer, space_token, src_lang, tgt_lang = load_model(model_name)
-    dataset = my_load_dataset(model_name)
+    dataset = my_load_dataset(model_name, start, end)
     return model, tokenizer, space_token, dataset, src_lang, tgt_lang
 
 
