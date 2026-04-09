@@ -24,9 +24,9 @@ MODEL_NAME_LIST = [
     'LaMini-GPT',
     'flan-t5-small',
     'Codegen',
-    'Llama-8B',
-    'Qwen-1.5B',
-    'Qwen-7B'
+    'Llama-8B', #10
+    'Qwen-1.5B', #11
+    'Qwen-7B'#12
 
 ]
 MODEL_WEIGHT = 'model_weight'
@@ -41,9 +41,9 @@ ATTACKLIST = [
     TransRepairAttack,
 
     StructureAttack,
-    Black_box_CharacterAttack,
-    Black_box_StructureAttack,
-    Black_box_WordAttack
+    Black_box_CharacterAttack, #7
+    Black_box_StructureAttack, #8
+    Black_box_WordAttack #9
 ]
 
 

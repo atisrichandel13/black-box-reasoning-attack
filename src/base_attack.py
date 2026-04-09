@@ -287,7 +287,7 @@ class MyAttack(BaseAttack):
     #         #     num_beam_groups=self.num_beam_groups, use_cache=True,
     #         #     max_length=self.max_len
     #         # )
-
+    #
     #         scores = StoppingCriteriaList(
     #             [
     #             EndOfFunctionCriteria(
@@ -336,9 +336,7 @@ class MyAttack(BaseAttack):
                 return word
         return None
 
-    def run_black_attack(self, text, seen_sentences=None, used_tokens=None):
-        if seen_sentences is None:
-            seen_sentences = set()
+    def run_black_attack(self, text, used_tokens=None):
         if used_tokens is None:
             used_tokens = set()
 

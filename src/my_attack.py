@@ -18,7 +18,7 @@ class Black_box_CharacterAttack(MyAttack):
         super(Black_box_CharacterAttack, self).__init__(model, tokenizer, space_token, device, config)
 
     @torch.no_grad()
-    def mutation(self, current_adv_text, grad, modify_pos):
+    def mutation(self, current_adv_text, grad, modify_pos, used_tokens = None):
         words = current_adv_text.split()
 
         result_array = [current_adv_text] + [current_adv_text.replace(word, '').strip() for word in words]
@@ -79,7 +79,7 @@ class Black_box_WordAttack(MyAttack):
     def __init__(self, model, tokenizer, space_token, device, config):
         super(Black_box_WordAttack, self).__init__(model, tokenizer, space_token, device, config)
 
-    def mutation(self, current_adv_text, grad, modify_pos):
+    def mutation(self, current_adv_text, grad, modify_pos, used_tokens = None):
         new_strings = self.token_replace_mutation(current_adv_text, grad, modify_pos)
         return new_strings
 
@@ -88,7 +88,7 @@ class Black_box_WordAttack(MyAttack):
         return random_numbers
 
     @torch.no_grad()
-    def mutation(self, current_adv_text, grad, modify_pos):
+    def mutation(self, current_adv_text, grad, modify_pos, used_tokens = None):
         import random
         import numpy as np
         import torch
@@ -516,7 +516,7 @@ class CharacterAttack(MyAttack):
         
         return loss_list
 
-    def mutation(self, current_adv_text, grad, modify_pos):
+    def mutation(self, current_adv_text, grad, modify_pos, used_tokens = None):
         current_tensor = self.tokenizer([current_adv_text], return_tensors="pt", padding=True).input_ids[0]
         new_strings = self.character_replace_mutation(current_adv_text, current_tensor, grad)
         return new_strings
@@ -565,7 +565,7 @@ class WordAttack(MyAttack):
     def __init__(self, model, tokenizer, space_token, device, config):
         super(WordAttack, self).__init__(model, tokenizer, space_token, device, config)
 
-    def mutation(self, current_adv_text, grad, modify_pos):
+    def mutation(self, current_adv_text, grad, modify_pos, used_tokens = None):
         new_strings = self.token_replace_mutation(current_adv_text, grad, modify_pos)
         return new_strings
 
@@ -671,7 +671,7 @@ class StructureAttack(MyAttack):
         tokens[masked_index] = original_word
         return new_sentences
 
-    def mutation(self, current_adv_text, grad, modify_pos):
+    def mutation(self, current_adv_text, grad, modify_pos, used_tokens = None):
         new_strings = self.structure_mutation(current_adv_text, grad)
         return new_strings
 
